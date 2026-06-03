@@ -29,10 +29,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Redirect immediately if already logged in
+# Let app.py handle routing — just rerun if already logged in
 if st.session_state.get("logged_in"):
-    st.switch_page("dashboard/dashboard_page.py")
-    st.stop()
+    st.rerun()
 
 # Dynamically read redirect URI from secrets (works locally and on Streamlit Cloud)
 REDIRECT_URI = st.secrets.get("oauth", {}).get(
@@ -159,7 +158,4 @@ with col2:
         "Create Account",
         use_container_width=True
     ):
-
-        st.switch_page(
-            "dashboard/register_page.py"
-        )
+        st.rerun()
