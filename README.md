@@ -2,6 +2,8 @@
 
 A full-stack business intelligence web application built with **Streamlit**, **MongoDB** for persistent data storage, and **Claude AI** for natural language business insights. Designed for SaaS teams to monitor KPIs, analyse customer behaviour, predict churn, and generate executive-level recommendations — all from a single dashboard.
 
+🔗 **Live Demo:** [https://saas-analytics-deployment-vjoytj2wnenohqjq9sfhjs.streamlit.app](https://saas-analytics-deployment-vjoytj2wnenohqjq9sfhjs.streamlit.app)
+
 ---
 
 ## Table of Contents
@@ -41,7 +43,6 @@ saas-business-analytics/
 │
 ├── auth/                           # Authentication module
 │   ├── __init__.py
-│   ├── __pycache__/
 │   ├── google_auth.py              # Google OAuth2 sign-in integration
 │   ├── login.py                    # Email/password credential verification
 │   ├── password_utils.py           # Password hashing and validation utilities
@@ -62,12 +63,10 @@ saas-business-analytics/
 │   └── SaaS-Sales.csv              # Real SaaS sales data used by the main dashboard
 │
 ├── database/                       # Database module
-│   ├── __pycache__/
 │   ├── __init__.py
 │   └── mongodb_connection.py       # MongoDB connection and user collection management
 │
 ├── src/                            # Core analytics and data processing modules
-│   ├── __pycache__/
 │   ├── __init__.py
 │   ├── customer_analysis.py        # Customer metrics, repeat customers, retention rate
 │   ├── dashboard_charts.py         # Reusable Streamlit chart helper functions
@@ -83,7 +82,7 @@ saas-business-analytics/
 │   └── secrets.toml                # API keys and OAuth credentials (not committed to git)
 │
 ├── venv/                           # Python virtual environment
-├── .env                            # Environment variables file
+├── .env                            # Environment variables file (not committed to git)
 ├── requirements.txt                # Python package dependencies
 └── README.md                       # Project documentation
 ```
@@ -103,7 +102,8 @@ saas-business-analytics/
 | **Authentication** | Custom + [Streamlit OAuth](https://github.com/dnl-blkv/streamlit-oauth) | `auth/` module | Email/password login, registration, Google OAuth2 sign-in |
 | **Password Security** | bcrypt / hashlib | `auth/password_utils.py` | Secure password hashing and verification |
 | **Dataset Generation** | NumPy + Pandas | `data/generate_dataset.py` | Synthetic SaaS customer data with realistic churn, MRR, NPS, upgrades |
-| **Configuration** | python-dotenv | `.env`, `secrets.toml` | Managing API keys and environment-specific configuration |
+| **Configuration** | python-dotenv + st.secrets | `.env`, `secrets.toml` | Managing API keys and environment-specific configuration |
+| **Deployment** | [Streamlit Community Cloud](https://streamlit.io/cloud) | — | Free cloud hosting with GitHub integration |
 
 ---
 
@@ -118,7 +118,7 @@ Located in the `auth/` module, the authentication system provides:
 - **Google OAuth2** single sign-on via `auth/google_auth.py` — users can sign in with their Google account in one click using the Streamlit OAuth library
 - **Session management** via `auth/session_manager.py` — initialises and maintains `st.session_state` fields (`logged_in`, `user_name`, `user_email`, `user_picture`) across all pages
 - **MongoDB persistence** via `database/mongodb_connection.py` — all registered user accounts are stored in a MongoDB collection, enabling persistent login across sessions
-- Separate, sidebar-free pages for Login (`login_page.py`) and Register (`register_page.py`) with navigation between them using `st.switch_page`
+- Separate, sidebar-free pages for Login (`login_page.py`) and Register (`register_page.py`) with navigation between them
 
 ---
 
@@ -183,7 +183,7 @@ Rule-based intelligence computed directly from the filtered data:
 - Best performing region and most profitable product
 - Highest revenue growth month
 - At-risk products table
-- Contextual text recommendations based on computed thresholds (e.g. loyalty programme suggestion when retention drops below 70%, discount policy review when average discount exceeds 20%)
+- Contextual text recommendations based on computed thresholds
 
 ---
 
@@ -228,14 +228,14 @@ A compact statistical summary of the uploaded data (no raw customer PII) is sent
 | Customer retention playbook | Engagement benchmarks, early warning signals, per-tier intervention playbooks |
 | Product & pricing recommendations | Plan adjustments, feature priorities, freemium conversion tactics, enterprise expansion |
 
-The generated report can be downloaded as a plain text file. A set of **Quick Insight Cards** also provides instant, rule-based observations without requiring an API call — covering churn signals, worst-performing plan, NPS health, upgrade rate, and month-over-month MRR growth.
+The generated report can be downloaded as a plain text file.
 
 ---
 
 ## Dataset
 
 ### SaaS-Sales.csv
-The primary dataset powering the main dashboard. Contains historical order-level records with fields for Sales, Profit, Discount, Customer, Segment, Region, Product, and Order Date. Loaded and filtered via `src/filter_data.py`.
+The primary dataset powering the main dashboard. Contains historical order-level records with fields for Sales, Profit, Discount, Customer, Segment, Region, Product, and Order Date.
 
 ### saas_data.csv (Generated)
 Generated by running `data/generate_dataset.py`. Produces approximately 10,000+ rows representing 500 synthetic customers across 3 years (2022–2024).
@@ -265,8 +265,6 @@ Generated by running `data/generate_dataset.py`. Produces approximately 10,000+ 
 | `upgrade_date` | Date of upgrade (if applicable) |
 | `upgrade_plan` | Plan upgraded to |
 | `tenure_days` | Total days since signup |
-
-Churn rates, upgrade rates, NPS distributions, and login frequencies are calibrated per plan tier to produce realistic business patterns.
 
 ---
 
@@ -309,38 +307,48 @@ Then open [http://localhost:8501](http://localhost:8501) in your browser.
 
 ## Environment Variables
 
-Create a `.streamlit/secrets.toml` file in the project root for all credentials:
+Create a `.streamlit/secrets.toml` file in the project root:
 
 ```toml
-[google_oauth]
-client_id     = "your-google-client-id"
-client_secret = "your-google-client-secret"
-redirect_uri  = "http://localhost:8501"
+MONGODB_URI = "your-mongodb-connection-string"
+GOOGLE_CLIENT_ID = "your-google-client-id"
+GOOGLE_CLIENT_SECRET = "your-google-client-secret"
 
-[mongodb]
-uri = "mongodb://localhost:27017"
-db  = "saas_analytics"
-
-[anthropic]
-api_key = "your-anthropic-api-key"
+[oauth]
+redirect_uri = "http://localhost:8501"
 ```
 
-You can also use a `.env` file for local development:
+For local development you can also use a `.env` file:
 
 ```env
-MONGO_URI=mongodb://localhost:27017
-MONGO_DB=saas_analytics
+MONGODB_URI=your-mongodb-connection-string
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
 
-> **Note:** Never commit `.env` or `secrets.toml` to version control. Add both to your `.gitignore`.
+> **Note:** Never commit `.env` or `secrets.toml` to version control. Both are listed in `.gitignore`.
+
+---
+
+## Deployment
+
+This app is deployed on **Streamlit Community Cloud**.
+
+🔗 **Live URL:** [https://saas-analytics-deployment-vjoytj2wnenohqjq9sfhjs.streamlit.app](https://saas-analytics-deployment-vjoytj2wnenohqjq9sfhjs.streamlit.app)
+
+To deploy your own instance:
+
+1. Push your code to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io) and click **"Create app"**
+3. Set **Main file path** to `dashboard/app.py`
+4. Add your secrets under **Settings → Secrets**
+5. Update `redirect_uri` in secrets and Google Cloud Console to your new app URL
 
 ---
 
 ## Requirements
 
-Key packages (add to `requirements.txt`):
+Key packages (see `requirements.txt` for full list):
 
 ```
 streamlit
@@ -354,6 +362,6 @@ pymongo
 bcrypt
 python-dotenv
 streamlit-oauth
+certifi
+anthropic
 ```
-
----
