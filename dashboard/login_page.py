@@ -29,11 +29,11 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Let app.py handle routing — just rerun if already logged in
+# Let app.py handle routing via st.navigation
 if st.session_state.get("logged_in"):
     st.rerun()
 
-# Dynamically read redirect URI from secrets (works locally and on Streamlit Cloud)
+# Dynamically read redirect URI from secrets
 REDIRECT_URI = st.secrets.get("oauth", {}).get(
     "redirect_uri",
     "http://localhost:8501"
@@ -45,9 +45,7 @@ with col2:
 
     st.title("Login")
 
-    email = st.text_input(
-        "Email"
-    )
+    email = st.text_input("Email")
 
     password = st.text_input(
         "Password",
@@ -60,99 +58,54 @@ with col2:
     ):
 
         if not email or not password:
-
-            st.error(
-                "Please fill all fields"
-            )
+            st.error("Please fill all fields")
 
         else:
 
-            user = login_user(
-                email,
-                password
-            )
+            user = login_user(email, password)
 
             if user:
 
                 st.session_state.logged_in = True
-
-                st.session_state.user_name = (
-                    user["name"]
-                )
-
-                st.session_state.user_email = (
-                    user["email"]
-                )
-
+                st.session_state.user_name = user["name"]
+                st.session_state.user_email = user["email"]
                 st.rerun()
 
             else:
-
-                st.error(
-                    "Invalid Credentials"
-                )
+                st.error("Invalid Credentials")
 
     st.markdown("---")
 
-    st.subheader(
-        "Or Continue With Google"
-    )
+    st.subheader("Or Continue With Google")
 
     result = oauth2.authorize_button(
         name="Continue with Google",
         redirect_uri=REDIRECT_URI,
         scope="openid email profile",
-        key="google_login"
+        key="google_login",
+        use_container_width=True,
+        pkce="S256"
     )
 
     if result:
 
-        google_user = get_google_user_info(
-            result
-        )
+        google_user = get_google_user_info(result)
 
         if google_user:
 
             st.session_state.logged_in = True
-
-            st.session_state.user_name = (
-                google_user.get(
-                    "name",
-                    "Google User"
-                )
-            )
-
-            st.session_state.user_email = (
-                google_user.get(
-                    "email",
-                    ""
-                )
-            )
-
-            st.session_state.user_picture = (
-                google_user.get(
-                    "picture",
-                    ""
-                )
-            )
-
-            st.success(
-                "Google Login Successful!"
-            )
-
+            st.session_state.user_name = google_user.get("name", "Google User")
+            st.session_state.user_email = google_user.get("email", "")
+            st.session_state.user_picture = google_user.get("picture", "")
+            st.success("Google Login Successful!")
             st.rerun()
 
         else:
-
-            st.error(
-                "Unable to fetch Google user information"
-            )
+            st.error("Unable to fetch Google user information")
 
     st.markdown("---")
 
-    st.write(
-        "Don't have an account?"
-    )
+    st.write("Don't have an account?")
 
     if st.button(
         "Create Account",
