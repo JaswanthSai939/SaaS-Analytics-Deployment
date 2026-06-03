@@ -1,10 +1,10 @@
 from pymongo import MongoClient
+import streamlit as st
 
 client = MongoClient(
-    "mongodb://localhost:27017/"
+    st.secrets["MONGODB_URI"]
 )
 
-db = client["saas_business_analytics"]
+db = client["saas_analytics"]
 
 users_collection = db["users"]
-sales_collection = db["sales_data"]
