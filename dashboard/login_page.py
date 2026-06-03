@@ -31,7 +31,7 @@ st.markdown(
 
 # Redirect immediately if already logged in
 if st.session_state.get("logged_in"):
-    st.switch_page("dashboard/pages/dashboard.py")
+    st.switch_page("dashboard/dashboard_page.py")
     st.stop()
 
 # Dynamically read redirect URI from secrets (works locally and on Streamlit Cloud)
