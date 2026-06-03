@@ -34,8 +34,11 @@ if st.session_state.get("logged_in"):
     st.switch_page("pages/dashboard.py")
     st.stop()
 
-# Fix: use the same page URL, not /oauth2callback
-REDIRECT_URI = "http://localhost:8501"
+# Dynamically read redirect URI from secrets (works locally and on Streamlit Cloud)
+REDIRECT_URI = st.secrets.get("oauth", {}).get(
+    "redirect_uri",
+    "http://localhost:8501"
+)
 
 col1, col2, col3 = st.columns([1, 2, 1])
 
