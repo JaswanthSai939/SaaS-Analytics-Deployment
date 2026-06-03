@@ -2,7 +2,11 @@ from database.mongodb_connection import users_collection
 from auth.password_utils import hash_password
 
 
-def register_user(name, email, password):
+def register_user(
+    name,
+    email,
+    password
+):
 
     existing_user = users_collection.find_one(
         {"email": email}
@@ -17,6 +21,8 @@ def register_user(name, email, password):
         "password": hash_password(password)
     }
 
-    users_collection.insert_one(user_data)
+    users_collection.insert_one(
+        user_data
+    )
 
     return True

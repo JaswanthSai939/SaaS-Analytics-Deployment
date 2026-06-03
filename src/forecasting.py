@@ -1,19 +1,12 @@
 import pandas as pd
 from prophet import Prophet
 
-from database.mongodb_connection import db
+from src.data_ingestion import load_data
 
 
 def sales_forecast():
 
-    data = list(
-        db["sales_data"].find(
-            {},
-            {"_id": 0}
-        )
-    )
-
-    df = pd.DataFrame(data)
+    df = load_data()
 
     df["Order Date"] = pd.to_datetime(
         df["Order Date"]
