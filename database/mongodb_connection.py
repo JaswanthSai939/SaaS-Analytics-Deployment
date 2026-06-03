@@ -22,7 +22,6 @@ client = MongoClient(
     serverSelectionTimeoutMS=5000
 )
 
-# Test connection immediately
 client.admin.command("ping")
 
 db = client["saas_analytics"]
